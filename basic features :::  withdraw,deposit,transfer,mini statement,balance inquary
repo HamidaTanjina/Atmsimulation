@@ -1,0 +1,210 @@
+
+package com.mycompany.atmsimulation;
+
+import java.util.*;
+
+public class Account {
+    private String accountNumber;
+    private String accountHolder;
+    private double balance;
+    private List<String> transactions;
+
+    public Account(String accountNumber, String accountHolder, double balance) {
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
+        this.balance = balance;
+        this.transactions = new ArrayList<>();
+        addTransaction("Account opened with $" + balance);
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public String getAccountHolder() {
+        return accountHolder;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void debit(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+        }
+    }
+
+    public void credit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public void addTransaction(String txn) {
+        transactions.add(txn);
+        if (transactions.size() > 5) {
+            transactions.remove(0);
+        }
+    }
+
+    public List<String> getMiniStatement() {
+        return new ArrayList<>(transactions);
+    }
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.atmsimulation;
+
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.*;
+
+public class NewJFrame extends JFrame {
+
+    private JTextField accHolderField, accNumField, amountField;
+    private JButton depositBtn, withdrawBtn;
+    private JTextArea outputArea;
+
+    private static List<Account> accounts = new ArrayList<>();
+
+    public NewJFrame() {
+        setTitle("ATM Simulation System");
+        setLayout(null);
+        setSize(400, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        JLabel accHolderLabel = new JLabel("Account Holder:");
+        accHolderLabel.setBounds(30, 30, 120, 25);
+        add(accHolderLabel);
+
+        accHolderField = new JTextField();
+        accHolderField.setBounds(150, 30, 180, 25);
+        add(accHolderField);
+
+        JLabel accNumLabel = new JLabel("Account Number:");
+        accNumLabel.setBounds(30, 70, 120, 25);
+        add(accNumLabel);
+
+        accNumField = new JTextField();
+        accNumField.setBounds(150, 70, 180, 25);
+        add(accNumField);
+
+        JLabel amountLabel = new JLabel("Amount:");
+        amountLabel.setBounds(30, 110, 120, 25);
+        add(amountLabel);
+
+        amountField = new JTextField();
+        amountField.setBounds(150, 110, 180, 25);
+        add(amountField);
+
+        depositBtn = new JButton("Deposit");
+        depositBtn.setBounds(30, 150, 140, 30);
+        add(depositBtn);
+
+        withdrawBtn = new JButton("Withdraw");
+        withdrawBtn.setBounds(190, 150, 140, 30);
+        add(withdrawBtn);
+
+        outputArea = new JTextArea();
+        outputArea.setBounds(30, 200, 300, 130);
+        outputArea.setEditable(false);
+        add(outputArea);
+
+        createDummyAccounts();
+
+        depositBtn.addActionListener(e -> performDeposit());
+        withdrawBtn.addActionListener(e -> performWithdraw());
+    }
+
+    private void createDummyAccounts() {
+        accounts.add(new Account("A001", "Alice", 1000));
+        accounts.add(new Account("A002", "Bob", 1500));
+        accounts.add(new Account("A003", "Charlie", 2000));
+        accounts.add(new Account("A004", "David", 1200));
+        accounts.add(new Account("A005", "Emma", 1800));
+        accounts.add(new Account("A006", "Frank", 1300));
+        accounts.add(new Account("A007", "Grace", 1700));
+        accounts.add(new Account("A008", "Henry", 1600));
+        accounts.add(new Account("A009", "Isla", 1900));
+        accounts.add(new Account("A010", "Jack", 1400));
+    }
+
+    private Account findAccount(String name, String number) {
+        for (Account acc : accounts) {
+            if (acc.getAccountHolder().equalsIgnoreCase(name.trim()) &&
+                acc.getAccountNumber().equalsIgnoreCase(number.trim())) {
+                return acc;
+            }
+        }
+        return null;
+    }
+
+    private void performDeposit() {
+        String name = accHolderField.getText();
+        String number = accNumField.getText();
+        String amountStr = amountField.getText();
+
+        Account acc = findAccount(name, number);
+        if (acc == null) {
+            outputArea.setText("Account not found.");
+            return;
+        }
+
+        try {
+            double amount = Double.parseDouble(amountStr);
+            acc.credit(amount);
+            acc.addTransaction("Deposited $" + amount);
+            outputArea.setText("Deposit successful.\nBalance: $" + acc.getBalance());
+        } catch (NumberFormatException ex) {
+            outputArea.setText("Invalid amount.");
+        }
+    }
+
+    private void performWithdraw() {
+        String name = accHolderField.getText();
+        String number = accNumField.getText();
+        String amountStr = amountField.getText();
+
+        Account acc = findAccount(name, number);
+        if (acc == null) {
+            outputArea.setText("Account not found.");
+            return;
+        }
+
+        try {
+            double amount = Double.parseDouble(amountStr);
+            if (amount > acc.getBalance()) {
+                outputArea.setText("Insufficient balance.");
+                return;
+            }
+            acc.debit(amount);
+            acc.addTransaction("Withdrew $" + amount);
+            outputArea.setText("Withdrawal successful.\nBalance: $" + acc.getBalance());
+        } catch (NumberFormatException ex) {
+            outputArea.setText("Invalid amount.");
+        }
+    }
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+
+package com.mycompany.atmsimulation;
+
+/**
+ *
+ * @author Muna
+ */
+public class Atmsimulation {
+ public static void main(String[] args) {
+        java.awt.EventQueue.invokeLater(() -> {
+            new NewJFrame().setVisible(true);
+        });
+    }
+    
+    }
+
+
